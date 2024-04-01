@@ -1,6 +1,7 @@
 # PolarPrint
 
 🖨️ Printer Manager for SwitchCraft3. Store and queue printing jobs with ease!
+Opensource licensed under AGPLv3.
 
 ## Development
 
