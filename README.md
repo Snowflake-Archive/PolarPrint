@@ -1,6 +1,6 @@
 # PolarPrint
 
-A software to queue and manage printers for SwitchCraft.
+🖨️ Printer Manager for SwitchCraft3. Store and queue printing jobs with ease!
 
 ## Development
 
