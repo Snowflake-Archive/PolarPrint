@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "PolarPrint",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

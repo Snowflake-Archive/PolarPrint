@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"database/sql"
 
@@ -17,6 +18,17 @@ type RenameFileRequestBody struct {
 	NewName string `json:"newName"`
 }
 
+type QueuePrintRequestBody struct {
+	FilePath string `json:"file"`
+	Quantity int    `json:"quantity"`
+}
+
+type QueueItem struct {
+	id       int
+	file     string
+	quantity int
+}
+
 func main() {
 	utils.PrintWelcome()
 	log.Print("Setting up database...")
@@ -28,9 +40,9 @@ func main() {
 
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS queue(
-			id int not null primary key,
-			type varchar(255),
-			amount int 
+			id INT NOT NULL PRIMARY KEY,
+			file TEXT NOT NULL,
+			quantity INT NOT NULL
 		);
 	`)
 
@@ -48,8 +60,8 @@ func main() {
 	log.Printf("There are %d queued items.", count)
 
 	app := fiber.New(fiber.Config{
-		Views:   handlebars.New("./views", ".hbs"),
-		Prefork: true,
+		Views: handlebars.New("./views", ".hbs"),
+		// Prefork: true,
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -84,7 +96,7 @@ func main() {
 			return err
 		}
 
-		os.Rename("./prints/"+c.Params("fileId"), data.NewName)
+		os.Rename("./prints/"+c.Params("fileId"), "./prints/"+data.NewName)
 		return c.SendString("OK")
 	})
 
@@ -97,8 +109,28 @@ func main() {
 		return c.SendString("Yes")
 	})
 
-	app.Post("/queue", func(c *fiber.Ctx) error {
-		return c.SendString("Yes")
+	app.Put("/queue", func(c *fiber.Ctx) error {
+		data := new(QueuePrintRequestBody)
+
+		if err := c.BodyParser(data); err != nil {
+			return err
+		}
+
+		id := time.Now().Unix() + utils.RandomRange(11111111, 99999999)
+
+		_, err := db.Exec(`INSERT INTO queue(id, file, quantity) values(?, ?, ?)`,
+			id,
+			"./prints/"+data.FilePath,
+			data.Quantity,
+		)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		return c.JSON(fiber.Map{
+			"id": id,
+		})
 	})
 
 	app.Delete("/queue/:itemId", func(c *fiber.Ctx) error {

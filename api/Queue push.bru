@@ -1,0 +1,18 @@
+meta {
+  name: Queue push
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:3000/queue
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "file": "bookstair.3dj.json",
+    "quantity": 3
+  }
+}

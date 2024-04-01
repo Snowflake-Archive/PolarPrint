@@ -1,0 +1,17 @@
+meta {
+  name: File rename
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:3000/files/bookstairs.3dj.json
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "newName": "bookstair.3dj.json"
+  }
+}
