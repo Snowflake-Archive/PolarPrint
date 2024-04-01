@@ -1,9 +1,11 @@
 package utils
 
-import "log"
+import (
+	"github.com/fatih/color"
+)
 
 func PrintWelcome() {
-	log.Print(`
+	color.Cyan(`
 
   _____      _            _____      _       _   
  |  __ \    | |          |  __ \    (_)     | |  

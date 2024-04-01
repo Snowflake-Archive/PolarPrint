@@ -22,3 +22,7 @@ air
 ```
 
 Behind the scenes it uses the awesome [Fiber](https://gofiber.io/) framework for the web server.
+
+## API Documentation
+
+The API is documented with the awesome [Bruno](https://www.usebruno.com/), a "Fast and Git-Friendly Opensource API client".
