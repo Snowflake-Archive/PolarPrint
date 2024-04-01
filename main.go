@@ -5,9 +5,12 @@ import (
 	"log"
 	"os"
 
+	"database/sql"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/handlebars/v2"
-	files "github.com/snowflake-software/polarprint/utils"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/snowflake-software/polarprint/utils"
 )
 
 type RenameFileRequestBody struct {
@@ -15,6 +18,35 @@ type RenameFileRequestBody struct {
 }
 
 func main() {
+	utils.PrintWelcome()
+	log.Print("Setting up database...")
+	db, err := sql.Open("sqlite3", "./polarprint.db")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS queue(
+			id int not null primary key,
+			type varchar(255),
+			amount int 
+		);
+	`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Print("Successfully initiated database!")
+
+	count := 0
+	err = db.QueryRow("SELECT COUNT(*) FROM queue").Scan(&count)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("There are %d queued items.", count)
+
 	app := fiber.New(fiber.Config{
 		Views:   handlebars.New("./views", ".hbs"),
 		Prefork: true,
@@ -22,13 +54,13 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("index", fiber.Map{
-			"files": files.GetFilenames(),
+			"files": utils.GetFilenames(),
 		})
 	})
 
 	app.Get("/files", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
-			"files": files.GetFilenames(),
+			"files": utils.GetFilenames(),
 		})
 	})
 

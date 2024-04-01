@@ -1,8 +1,6 @@
 # PolarPrint
 
-🖨️ Printer Manager for [SwitchCraft3](https://sc3.io). Store and queue printing jobs with ease!
-
-Licensed under [GNU AGPLv3](https://raw.githubusercontent.com/Snowflake-Software/PolarPrint/main/LICENSE).
+🖨️ Printer Manager for [SwitchCraft3](https://sc3.io). Store and queue printing jobs with ease! Licensed under [GNU AGPLv3](https://raw.githubusercontent.com/Snowflake-Software/PolarPrint/main/LICENSE).
 
 ## Development
 
@@ -12,7 +10,7 @@ See the install [offical install guide](https://go.dev/doc/install).
 
 Once you are setup with golang, run the following to install the dependencies
 
-```shell
+```bash
 go mod tidy
 ```
 
@@ -22,3 +20,5 @@ For easier development we recommend air to reload the program once you change so
 go install github.com/cosmtrek/air@latest
 air
 ```
+
+Behind the scenes it uses the awesome [Fiber](https://gofiber.io/) framework for the web server.
