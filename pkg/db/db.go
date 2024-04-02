@@ -2,18 +2,15 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"log"
+
+	"github.com/snowflake-software/polarprint/pkg/types"
 )
 
 var (
 	DB *sql.DB
 )
-
-type QueueItem struct {
-	Id       int    `json:"id"`
-	File     string `json:"file"`
-	Quantity int    `json:"quantity"`
-}
 
 func SetupDatabase() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", "./polarprint.db")
@@ -49,24 +46,52 @@ func SetupDatabase() (*sql.DB, error) {
 	return db, nil
 }
 
-func GetQueue() ([]QueueItem, error) {
+func GetQueue() ([]types.QueueItem, error) {
 	rows, err := DB.Query("SELECT * FROM queue")
 	if err != nil {
 		return nil, err
 	}
 
-	var orders []QueueItem
+	var orders []types.QueueItem
 
 	for rows.Next() {
-		var order QueueItem
+		var order types.QueueItem
 
 		if err := rows.Scan(&order.Id, &order.File, &order.Quantity); err != nil {
 			return nil, err
 		}
 
-		log.Print(order)
 		orders = append(orders, order)
 	}
 
 	return orders, nil
+}
+
+func InsertOrder(id int64, data types.QueuePrintRequestBody) error {
+	_, err := DB.Exec(`INSERT INTO queue(id, file, quantity) values(?, ?, ?)`,
+		id,
+		"./prints/"+data.FilePath,
+		data.Quantity,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteOrder(id int64) error {
+	res, err := DB.Exec("DELETE FROM queue WHERE id = ?", id)
+
+	if err != nil {
+		return err
+	}
+
+	affected, _ := res.RowsAffected()
+	if affected == 0 {
+		return errors.New("order not found")
+	}
+
+	return nil
 }

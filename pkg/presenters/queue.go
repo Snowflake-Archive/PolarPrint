@@ -2,10 +2,10 @@ package presenters
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/snowflake-software/polarprint/pkg/db"
+	"github.com/snowflake-software/polarprint/pkg/types"
 )
 
-func GetQueueSuccessResponse(queue []db.QueueItem) *fiber.Map {
+func GetQueueSuccessResponse(queue []types.QueueItem) *fiber.Map {
 	return &fiber.Map{
 		"err":   nil,
 		"queue": queue,
