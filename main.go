@@ -6,11 +6,10 @@ import (
 	"os"
 	"time"
 
-	"database/sql"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/handlebars/v2"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/snowflake-software/polarprint/pkg/db"
 	"github.com/snowflake-software/polarprint/pkg/presenters"
 	"github.com/snowflake-software/polarprint/pkg/routes"
 	"github.com/snowflake-software/polarprint/pkg/utils"
@@ -33,33 +32,11 @@ type QueueItem struct {
 
 func main() {
 	utils.PrintWelcome()
-	log.Print("Setting up database...")
-	db, err := sql.Open("sqlite3", "./polarprint.db")
+	sql, err := db.SetupDatabase()
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS queue(
-			id INT NOT NULL PRIMARY KEY,
-			file TEXT NOT NULL,
-			quantity INT NOT NULL
-		);
-	`)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Print("Successfully initiated database!")
-
-	count := 0
-	err = db.QueryRow("SELECT COUNT(*) FROM queue").Scan(&count)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("There are %d queued items.", count)
 
 	app := fiber.New(fiber.Config{
 		Views: handlebars.New("./views", ".hbs"),
@@ -122,7 +99,7 @@ func main() {
 
 		id := time.Now().Unix() + utils.RandomRange(11111111, 99999999)
 
-		_, err := db.Exec(`INSERT INTO queue(id, file, quantity) values(?, ?, ?)`,
+		_, err := sql.Exec(`INSERT INTO queue(id, file, quantity) values(?, ?, ?)`,
 			id,
 			"./prints/"+data.FilePath,
 			data.Quantity,
@@ -138,9 +115,10 @@ func main() {
 	})
 
 	app.Delete("/queue/:orderId", func(c *fiber.Ctx) error {
-		_, err := db.Exec(`DELETE`)
+		_, err := sql.Exec(`DELETE`)
 
 		if err != nil {
+			log.Print("Error while deleting order", err.Error())
 			return c.SendStatus(404)
 		}
 
