@@ -144,7 +144,7 @@ func GetCluster(id int64) (*types.Cluster, error) {
 
 func CreateCluster() (*types.Cluster, error) {
 	id := time.Now().Unix() + utils.RandomRange(11111111, 99999999)
-	key := utils.RandomAlphanumberic(8)
+	key := utils.RandomAlphanumberic(16)
 
 	_, err := DB.Exec(`INSERT INTO clusters(id, key, printers) values(?, ?, ?)`,
 		id,
