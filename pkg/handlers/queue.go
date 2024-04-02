@@ -6,12 +6,20 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/snowflake-software/polarprint/pkg/db"
+	"github.com/snowflake-software/polarprint/pkg/presenters"
 	"github.com/snowflake-software/polarprint/pkg/utils"
 )
 
 func GetQueue() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return c.SendString("Queue™")
+		queue, err := db.GetQueue()
+
+		if err != nil {
+			c.Status(500)
+			return c.JSON(presenters.GetQueueFailedResponse(err))
+		}
+
+		return c.JSON(presenters.GetQueueSuccessResponse(queue))
 	}
 }
 

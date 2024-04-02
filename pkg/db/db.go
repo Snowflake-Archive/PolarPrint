@@ -9,6 +9,12 @@ var (
 	DB *sql.DB
 )
 
+type QueueItem struct {
+	Id       int    `json:"id"`
+	File     string `json:"file"`
+	Quantity int    `json:"quantity"`
+}
+
 func SetupDatabase() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", "./polarprint.db")
 
@@ -39,5 +45,28 @@ func SetupDatabase() (*sql.DB, error) {
 
 	log.Printf("There are %d queued items.", count)
 
+	DB = db
 	return db, nil
+}
+
+func GetQueue() ([]QueueItem, error) {
+	rows, err := DB.Query("SELECT * FROM queue")
+	if err != nil {
+		return nil, err
+	}
+
+	var orders []QueueItem
+
+	for rows.Next() {
+		var order QueueItem
+
+		if err := rows.Scan(&order.Id, &order.File, &order.Quantity); err != nil {
+			return nil, err
+		}
+
+		log.Print(order)
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }

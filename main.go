@@ -11,16 +11,9 @@ import (
 	"github.com/snowflake-software/polarprint/pkg/utils"
 )
 
-type QueueItem struct {
-	id       int
-	file     string
-	quantity int
-}
-
 func main() {
 	utils.PrintWelcome()
-	sql, err := db.SetupDatabase()
-	db.DB = sql
+	_, err := db.SetupDatabase()
 
 	if err != nil {
 		log.Fatal(err)
