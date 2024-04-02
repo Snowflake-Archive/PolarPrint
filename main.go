@@ -28,6 +28,7 @@ func main() {
 	routes.FilesRouter(app)
 	routes.QueueRoutes(app)
 	routes.ClusterRoutes(app)
+	routes.CCWSRoutes(app)
 
 	app.Static("/", "./static")
 

@@ -164,3 +164,16 @@ func CreateCluster() (*types.Cluster, error) {
 
 	return cluster, nil
 }
+
+func GetClusterByKey(key string) (*types.Cluster, error) {
+	var cluster types.Cluster
+	var printersUnparsed string
+
+	if err := DB.QueryRow("SELECT * FROM clusters WHERE key = ?", key).Scan(&cluster.Id, &cluster.Key, &printersUnparsed); err != nil {
+		return nil, err
+	}
+
+	cluster.Printers = utils.UnpackPrinterArray(printersUnparsed)
+
+	return &cluster, nil
+}
