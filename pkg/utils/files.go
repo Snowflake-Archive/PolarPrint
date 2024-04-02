@@ -1,19 +1,21 @@
 package utils
 
 import (
-	"log"
 	"os"
 )
 
-func GetFilenames() []string {
+func GetFilenames() ([]string, error) {
 	files, err := os.ReadDir("./prints")
+
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+
 	fileNames := []string{}
+
 	for _, file := range files {
 		fileNames = append(fileNames, file.Name())
 	}
 
-	return fileNames
+	return fileNames, nil
 }

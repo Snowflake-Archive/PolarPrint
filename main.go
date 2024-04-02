@@ -11,7 +11,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/handlebars/v2"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/snowflake-software/polarprint/utils"
+	"github.com/snowflake-software/polarprint/pkg/presenters"
+	"github.com/snowflake-software/polarprint/pkg/routes"
+	"github.com/snowflake-software/polarprint/pkg/utils"
 )
 
 type RenameFileRequestBody struct {
@@ -64,15 +66,17 @@ func main() {
 		// Prefork: true,
 	})
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("index", fiber.Map{
-			"files": utils.GetFilenames(),
-		})
-	})
+	routes.FilesRouter(app)
 
-	app.Get("/files", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"files": utils.GetFilenames(),
+	app.Get("/", func(c *fiber.Ctx) error {
+		files, err := utils.GetFilenames()
+
+		if err != nil {
+			return c.JSON(presenters.FileListErrorResponse(err))
+		}
+
+		return c.Render("index", fiber.Map{
+			"files": files,
 		})
 	})
 
@@ -133,7 +137,13 @@ func main() {
 		})
 	})
 
-	app.Delete("/queue/:itemId", func(c *fiber.Ctx) error {
+	app.Delete("/queue/:orderId", func(c *fiber.Ctx) error {
+		_, err := db.Exec(`DELETE`)
+
+		if err != nil {
+			return c.SendStatus(404)
+		}
+
 		return c.SendString("Yes")
 	})
 
