@@ -1,0 +1,15 @@
+meta {
+  name: File upload
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:3000/files
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  file: @file(/home/erlend/Downloads/bookpillarCorner.3dj)
+}

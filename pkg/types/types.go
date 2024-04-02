@@ -10,3 +10,9 @@ type QueueItem struct {
 	File     string `json:"file"`
 	Quantity int    `json:"quantity"`
 }
+
+type Cluster struct {
+	Id       int      `json:"id"`
+	Printers []string `json:"printers"`
+	Key      string   `json:"key"`
+}

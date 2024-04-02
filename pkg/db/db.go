@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/snowflake-software/polarprint/pkg/types"
+	"github.com/snowflake-software/polarprint/pkg/utils"
 )
 
 var (
@@ -23,7 +25,14 @@ func SetupDatabase() (*sql.DB, error) {
 		CREATE TABLE IF NOT EXISTS queue(
 			id INT NOT NULL PRIMARY KEY,
 			file TEXT NOT NULL,
-			quantity INT NOT NULL
+			quantity INT NOT NULL,
+			clusterId INT NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS clusters(
+			id INT NOT NULL PRIMARY KEY,
+			key TEXT NOT NULL,
+			printers TEXT NOT NULL
 		);
 	`)
 
@@ -94,4 +103,64 @@ func DeleteOrder(id int64) error {
 	}
 
 	return nil
+}
+
+func GetClusters() ([]types.Cluster, error) {
+	rows, err := DB.Query("SELECT * FROM clusters")
+	if err != nil {
+		return nil, err
+	}
+
+	var clusters []types.Cluster
+
+	for rows.Next() {
+		var cluster types.Cluster
+		var printersUnparsed string
+
+		if err := rows.Scan(&cluster.Id, &cluster.Key, &printersUnparsed); err != nil {
+			return nil, err
+		}
+
+		cluster.Printers = utils.UnpackPrinterArray(printersUnparsed)
+
+		clusters = append(clusters, cluster)
+	}
+
+	return clusters, nil
+}
+
+func GetCluster(id int64) (*types.Cluster, error) {
+	var cluster types.Cluster
+	var printersUnparsed string
+
+	if err := DB.QueryRow("SELECT * FROM clusters WHERE id = ?", id).Scan(&cluster.Id, &cluster.Key, &printersUnparsed); err != nil {
+		return nil, err
+	}
+
+	cluster.Printers = utils.UnpackPrinterArray(printersUnparsed)
+
+	return &cluster, nil
+}
+
+func CreateCluster() (*types.Cluster, error) {
+	id := time.Now().Unix() + utils.RandomRange(11111111, 99999999)
+	key := utils.RandomAlphanumberic(8)
+
+	_, err := DB.Exec(`INSERT INTO clusters(id, key, printers) values(?, ?, ?)`,
+		id,
+		key,
+		"",
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	cluster, err := GetCluster(id)
+
+	if err != nil {
+		log.Fatal("Cluster not found, even though just created", err)
+	}
+
+	return cluster, nil
 }

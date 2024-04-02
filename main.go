@@ -27,6 +27,7 @@ func main() {
 	routes.MetaRouter(app)
 	routes.FilesRouter(app)
 	routes.QueueRoutes(app)
+	routes.ClusterRoutes(app)
 
 	app.Static("/", "./static")
 
