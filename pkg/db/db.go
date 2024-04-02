@@ -5,6 +5,10 @@ import (
 	"log"
 )
 
+var (
+	DB *sql.DB
+)
+
 func SetupDatabase() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", "./polarprint.db")
 
