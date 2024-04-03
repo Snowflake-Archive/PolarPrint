@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/snowflake-software/polarprint/pkg/db"
+	"github.com/snowflake-software/polarprint/pkg/ws"
 )
 
 func CCWSRoutes(app fiber.Router) {
@@ -17,6 +18,8 @@ func CCWSRoutes(app fiber.Router) {
 		return fiber.ErrUpgradeRequired
 	})
 
+	manager := ws.NewManager()
+
 	app.Get("/ccws/:key", websocket.New(func(c *websocket.Conn) {
 		if _, err := db.GetClusterByKey(c.Params("key")); err != nil {
 			log.Print("Error while verifying ccws key:", err)
@@ -24,26 +27,9 @@ func CCWSRoutes(app fiber.Router) {
 			return
 		}
 
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
+		client := ws.NewClient(c, manager)
+		manager.AddClient(client)
 
-		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
-				log.Println("error while reading:", err)
-				c.Close()
-				return
-			}
-
-			log.Printf("Received: %s", msg)
-
-			if err = c.WriteMessage(mt, msg); err != nil {
-				log.Print("error while writing:", err)
-				c.Close()
-				return
-			}
-		}
+		client.ReadMessages()
 	}))
 }
