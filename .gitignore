@@ -1,6 +1,7 @@
 prints
 tmp
 .env
+.vscode
 
 # Binaries for programs and plugins
 *.exe
