@@ -2,6 +2,10 @@
 
 🖨️ Printer Manager for [SwitchCraft3](https://sc3.io). Store and queue printing jobs with ease! Licensed under [GNU AGPLv3](https://raw.githubusercontent.com/Snowflake-Software/PolarPrint/main/LICENSE).
 
+> [!IMPORTANT]
+> Snowflake-Software no longer has a precence on SwitchCraft3, as SwitchCraft3 is shutting down.
+> As such this repository has been archived.
+
 ## Development
 
 PolarPrint is written in Golang and handlebars.
